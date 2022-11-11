@@ -4,17 +4,31 @@ import { Fontisto } from '@expo/vector-icons';
 import Logo from '../assets/logo.svg';
 import { Button } from "../components/Button";
 
+import { useAuth } from '../hooks/userAuth';
+
 
 export function SignIn() {
+    const { singIn, user } = useAuth();
+
+    console.log(user)
+
     return (
-        <Center flex={1} bgColor="black">
+        <Center flex={1} bgColor="gray.900" p={7}>
                <Logo width={212} height={40}/> 
 
                <Button 
-               leftIcon={<Icon as={Fontisto} name="google" color="white" size="md"/>}
-               title='ENTRAR COM O GOOGLE'
                type="SECONDARY"
+               isLoading={true}
+               title='ENTRAR COM O GOOGLE'
+               leftIcon={<Icon as={Fontisto} name="google" color="white" size="md"/>}
+               mt={12}
+               onPress={singIn}
                />
+
+               <Text color="white" textAlign="center" mt-t={4}>
+                Não utilizamos nenhuma informação além
+                do seu e-mail para criação de sua conta.
+               </Text>
         </Center>
     )
 }
