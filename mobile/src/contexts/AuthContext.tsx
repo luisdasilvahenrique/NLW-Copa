@@ -1,5 +1,9 @@
-import { createContext, ReactNode } from "react";
+import { createContext, ReactNode, useState, useEffect } from "react";
+import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
+WebBrowser.maybeCompleteAuthSession();
 interface UserProps {
     name: string;
     avatarUrl: string;
@@ -7,6 +11,7 @@ interface UserProps {
 
 export interface AuthContextDataProps {
     user: UserProps;
+    isUserLoading: boolean;
     singIn: () => Promise<void>;
 }
 
@@ -17,18 +22,43 @@ interface AuthProviderProps {
 export const AuthContext = createContext({} as AuthContextDataProps);
 
 export function AuthContextProvider({ children }: AuthProviderProps) {
+    const [user, setUser] = useState<UserProps>({} as UserProps)
+    const [isUserLoading, setIsUserLoading] = useState(false);
+
+    const [request, response, prompAsync] = Google.useAuthRequest({
+        clientId: '95157507101-0j1bkq1v4v69q627t1nv9vv26phs7aam.apps.googleusercontent.com',
+        redirectUri: AuthSession.makeRedirectUri({useProxy: true}),
+        scopes: ['profile', 'email']
+    });
 
     async function singIn() {
-        alert('Vamos logar!');
+        try{
+            setIsUserLoading(true);
+            await prompAsync();
+        } catch (err){
+            console.log(err)
+            throw err;
+        } finally{
+            setIsUserLoading(false);
+        }
     }
+
+    async function signInWithGoogle(access_token: string){
+        alert(access_token)
+    }
+
+    useEffect(() => {
+      if(response?.type === 'success' && response.authentication?.accessToken){
+        signInWithGoogle(response.authentication.accessToken);
+      }
+    }, [response])
+    
 
     return (
         <AuthContext.Provider value={{
             singIn,
-            user: {
-                name: 'Luis',
-                avatarUrl: 'https://github.com/luisdasilvahenrique.png'
-            }
+            isUserLoading,
+            user,
         }}>
             {children}
         </AuthContext.Provider>

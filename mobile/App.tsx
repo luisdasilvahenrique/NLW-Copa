@@ -20,7 +20,6 @@ export default function App() {
        />
 
       { fontLoaded ? <SignIn /> : <Loading /> }
-      
       </AuthContextProvider>
     </NativeBaseProvider>
    
